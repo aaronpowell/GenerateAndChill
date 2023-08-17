@@ -1,0 +1,1 @@
+﻿record ImageGenerationPayload(string Prompt);
