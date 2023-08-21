@@ -1,0 +1,11 @@
+name: kubernetes-day-demo
+services:
+  frontend:
+    project: ./src/KubernetesDayDemo.Client
+    dist: build
+    language: js
+    host: staticwebapp
+  backend:
+    project: ./src/KubernetesDayDemo.Server
+    language: csharp
+    host: appservice

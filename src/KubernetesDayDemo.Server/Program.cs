@@ -1,5 +1,7 @@
 using Azure;
 using Azure.AI.OpenAI;
+using Azure.Core;
+using Azure.Identity;
 using KubernetesDayDemo.Server;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -8,10 +10,11 @@ builder.Services.AddScoped(provider =>
 {
     IConfigurationSection config = builder.Configuration.GetSection("Azure");
 
-    OpenAIClient openAIClient = new(
-        new Uri(config["OpenAIEndpoint"]!),
-        new AzureKeyCredential(config["OpenAIKey"]!)
-    );
+    OpenAIClient openAIClient = config["OpenAIKey"] switch
+    {
+        null => new(new Uri(config["OpenAIEndpoint"]!), new DefaultAzureCredential()),
+        string key => new(new Uri(config["OpenAIEndpoint"]!), new AzureKeyCredential(key))
+    };
 
     return openAIClient;
 });
