@@ -19,7 +19,7 @@ public static class Routes
 
     public static void MapRoutes(this WebApplication app)
     {
-        app.MapPost("/generate/image", async ([FromServices] OpenAIClient client, [FromBody] ImageGenerationPayload body) =>
+        app.MapPost("/api/generate/image", async ([FromServices] OpenAIClient client, [FromBody] ImageGenerationPayload body) =>
         {
             string prompt = SystemPrompt + body.Prompt;
             Response<ImageGenerations> response = await client.GetImageGenerationsAsync(new ImageGenerationOptions

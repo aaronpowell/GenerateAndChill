@@ -1,8 +1,5 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
   "name": "Ubuntu",
-  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
   "image": "mcr.microsoft.com/devcontainers/base:jammy",
   "features": {
     "ghcr.io/devcontainers/features/dotnet:1": {},
@@ -10,7 +7,6 @@
     "ghcr.io/azure/azure-dev/azd:latest": {}
   },
 
-  // Configure tool-specific properties.
   "customizations": {
     "vscode": {
       "extensions": [
@@ -24,7 +20,4 @@
   "remoteEnv": {
     "ASPNETCORE_ENVIRONMENT": "Development"
   }
-
-  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-  // "remoteUser": "root"
 }

@@ -6,6 +6,8 @@ using KubernetesDayDemo.Server;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.AddScoped(provider =>
 {
     IConfigurationSection config = builder.Configuration.GetSection("Azure");

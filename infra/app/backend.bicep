@@ -8,7 +8,7 @@ param applicationInsightsName string = ''
 param appServicePlanId string
 @secure()
 param appSettings object = {}
-param serviceName string = 'api'
+param serviceName string = 'backend'
 
 module api '../core/host/appservice.bicep' = {
   name: '${name}-app-module'

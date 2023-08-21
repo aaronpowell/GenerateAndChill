@@ -1,6 +1,7 @@
 param name string
 param location string = resourceGroup().location
 param tags object = {}
+param serviceName string = 'frontend'
 
 param sku object = {
   name: 'Free'
@@ -10,7 +11,7 @@ param sku object = {
 resource web 'Microsoft.Web/staticSites@2022-03-01' = {
   name: name
   location: location
-  tags: tags
+  tags: union(tags, { 'azd-service-name': serviceName })
   sku: sku
   properties: {
     provider: 'Custom'

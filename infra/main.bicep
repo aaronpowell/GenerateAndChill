@@ -17,13 +17,11 @@ param apiServiceName string = ''
 param applicationInsightsDashboardName string = ''
 param applicationInsightsName string = ''
 param appServicePlanName string = ''
-param keyVaultName string = ''
 param logAnalyticsName string = ''
 param resourceGroupName string = ''
 param webServiceName string = ''
 
 param openAiServiceName string = ''
-param openAiResourceGroupName string = ''
 @description('Location for the OpenAI resource group')
 @allowed([ 'canadaeast', 'eastus', 'francecentral', 'japaneast', 'northcentralus' ])
 @metadata({
@@ -38,6 +36,15 @@ param openAiSkuName string = 'S0'
 @description('Id of the user or app to assign application roles')
 param principalId string = ''
 
+@description('Location for the frontend app resource group')
+@allowed([ 'centralus', 'eastus2', 'eastasia', 'westeurope', 'westus2' ])
+@metadata({
+  azd: {
+    type: 'location'
+  }
+})
+param frontendResourceGroupLocation string
+
 var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
 var tags = { 'azd-env-name': environmentName }
@@ -49,23 +56,27 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   tags: tags
 }
 
-resource openAiResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(openAiResourceGroupName)) {
-  name: !empty(openAiResourceGroupName) ? openAiResourceGroupName : rg.name
-}
-
 // The application frontend
 module frontend './app/frontend.bicep' = {
   name: 'frontend'
   scope: rg
   params: {
     name: !empty(webServiceName) ? webServiceName : '${abbrs.webSitesAppService}web-${resourceToken}'
-    location: location
+    location: frontendResourceGroupLocation
     tags: tags
+  }
+}
+
+module swaLink './linkSwaBackends.bicep' = {
+  name: 'frontend-link'
+  scope: rg
+  params: {
+    swaAppName: frontend.outputs.SERVICE_WEB_NAME
     backendAppName: api.outputs.SERVICE_API_NAME
   }
 }
 
-module webAppSettings './core/host/appservice-appsettings.bicep' = {
+module webAppSettings './core/host/staticwebapp-appsettings.bicep' = {
   name: 'web-appsettings'
   scope: rg
   params: {
@@ -87,7 +98,7 @@ module api './app/backend.bicep' = {
     applicationInsightsName: monitoring.outputs.applicationInsightsName
     appServicePlanId: appServicePlan.outputs.id
     appSettings: {
-      AZURE_OpenAIEndpoint: openAi.outputs.endpoint
+      Azure_OpenAIEndpoint: openAi.outputs.endpoint
     }
   }
 }
@@ -121,7 +132,7 @@ module monitoring './core/monitor/monitoring.bicep' = {
 
 module openAi 'core/ai/cognitiveservices.bicep' = {
   name: 'openai'
-  scope: openAiResourceGroup
+  scope: rg
   params: {
     name: !empty(openAiServiceName) ? openAiServiceName : '${abbrs.cognitiveServicesAccounts}${resourceToken}'
     location: openAiResourceGroupLocation
