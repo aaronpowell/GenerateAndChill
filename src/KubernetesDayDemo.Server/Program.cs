@@ -12,10 +12,12 @@ builder.Services.AddScoped(provider =>
 {
     IConfigurationSection config = builder.Configuration.GetSection("Azure");
 
+    Uri url = new(config["OpenAIEndpoint"]!);
+
     OpenAIClient openAIClient = config["OpenAIKey"] switch
     {
-        null => new(new Uri(config["OpenAIEndpoint"]!), new DefaultAzureCredential()),
-        string key => new(new Uri(config["OpenAIEndpoint"]!), new AzureKeyCredential(key))
+        null => new(url, new DefaultAzureCredential()),
+        string key => new(url, new AzureKeyCredential(key))
     };
 
     return openAIClient;

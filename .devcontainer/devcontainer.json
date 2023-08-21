@@ -1,6 +1,6 @@
 {
   "name": "Ubuntu",
-  "image": "mcr.microsoft.com/devcontainers/base:jammy",
+  "image": "mcr.microsoft.com/devcontainers/base:focal",
   "features": {
     "ghcr.io/devcontainers/features/dotnet:1": {},
     "ghcr.io/devcontainers/features/node:1": {},

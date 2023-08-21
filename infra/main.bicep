@@ -98,7 +98,8 @@ module api './app/backend.bicep' = {
     applicationInsightsName: monitoring.outputs.applicationInsightsName
     appServicePlanId: appServicePlan.outputs.id
     appSettings: {
-      Azure_OpenAIEndpoint: openAi.outputs.endpoint
+      Azure__OpenAIEndpoint: openAi.outputs.endpoint
+      Azure__OpenAIKey: openAi.outputs.key
     }
   }
 }
