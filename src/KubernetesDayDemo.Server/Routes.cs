@@ -14,7 +14,8 @@ public static class Routes
         - Watercolour painting
         - Oil painting
 
-        Use the following prompt to generate the image: 
+        Use the following prompt to generate the image:
+
         """;
 
     public static void MapRoutes(this WebApplication app)
@@ -26,7 +27,7 @@ public static class Routes
             {
                 ImageCount = 1,
                 Prompt = prompt,
-                Size = ImageSize.Size1024x1024,
+                Size = ImageSize.Size512x512,
                 User = "user",
             });
 

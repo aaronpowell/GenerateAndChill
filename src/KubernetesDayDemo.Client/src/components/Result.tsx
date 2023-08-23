@@ -12,10 +12,10 @@ export const Result = ({
   reset,
 }: ResultProps) => {
   return (
-    <section>
-      <img src={imageUri} alt={lastPrompt} />
+    <section className="h-screen">
+      <img src={imageUri} alt={lastPrompt} className="mx-auto" />
       <p>Prompt</p>
-      <pre className="text-left">{lastPrompt}</pre>
+      <pre className="text-left overflow-x-scroll">{lastPrompt}</pre>
       <button
         onClick={regenerate}
         className="px-4 py-2 font-semibold text-sm bg-cyan-500 text-white rounded-full shadow-sm"
