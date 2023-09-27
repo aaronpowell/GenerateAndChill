@@ -59,27 +59,35 @@ public static class Routes
             [FromBody] ImageGenerationPayload body)
     {
         string prompt = SystemPrompt + body.Prompt;
-        ImageGenerations generations = await GenerateImage(client, prompt);
-
-        if (generations is null || generations.Data.Count != 1)
+        try
         {
-            return Results.BadRequest("Something caused it to not generate an image");
+            ImageGenerations generations = await GenerateImage(client, prompt);
+
+            if (generations is null || generations.Data.Count != 1)
+            {
+                return Results.BadRequest("Something caused it to not generate an image");
+            }
+
+            Guid id = Guid.NewGuid();
+
+            Uri imageUri = await UploadImage(blobClient, id, generations);
+            await StorePrompt(tableClient, prompt, body.Prompt, id, imageUri);
+
+            string sas = GenerateSasToken(blobClient, id.ToString());
+
+            return Results.Ok(new
+            {
+                Id = id,
+                ImageUri = $"{imageUri.AbsoluteUri}?{sas}",
+                DetailedPrompt = prompt,
+                OriginalPrompt = body.Prompt,
+            });
+        }
+        catch (RequestFailedException ex)
+        {
+            return Results.BadRequest(ex.Message);
         }
 
-        Guid id = Guid.NewGuid();
-
-        Uri imageUri = await UploadImage(blobClient, id, generations);
-        await StorePrompt(tableClient, prompt, body.Prompt, id, imageUri);
-
-        string sas = GenerateSasToken(blobClient, id.ToString());
-
-        return Results.Ok(new
-        {
-            Id = id,
-            ImageUri = $"{imageUri.AbsoluteUri}?{sas}",
-            DetailedPrompt = prompt,
-            OriginalPrompt = body.Prompt,
-        });
     }
 
     private static async Task StorePrompt(TableServiceClient tableClient, string prompt, string originalPrompt, Guid id, Uri imageUri)
