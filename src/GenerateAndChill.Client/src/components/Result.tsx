@@ -1,4 +1,5 @@
 import { Form, NavLink } from "react-router-dom";
+import { QRCode } from "./QRCode";
 
 export type ResultProps = {
   imageUri: string;
@@ -29,6 +30,8 @@ export const Result = ({
           Reset
         </NavLink>
       </Form>
+
+      <QRCode />
     </section>
   );
 };
