@@ -1,9 +1,13 @@
 {
-  "name": "Ubuntu",
-  "image": "mcr.microsoft.com/devcontainers/base:focal",
+  "name": "OpenAI image demo",
+  "image": "mcr.microsoft.com/devcontainers/base:jammy",
   "features": {
-    "ghcr.io/devcontainers/features/dotnet:1": {},
-    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/devcontainers/features/dotnet:2": {
+      "version": "7.0"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20.6.1"
+    },
     "ghcr.io/azure/azure-dev/azd:latest": {}
   },
 
@@ -12,12 +16,15 @@
       "extensions": [
         "ms-dotnettools.csdevkit",
         "esbenp.prettier-vscode",
-        "GitHub.copilot-chat"
+        "GitHub.copilot-chat",
+        "esbenp.prettier-vscode"
       ]
     }
   },
 
   "remoteEnv": {
     "ASPNETCORE_ENVIRONMENT": "Development"
-  }
+  },
+
+  "postCreateCommand": "npm i -g @azure/static-web-apps-cli"
 }

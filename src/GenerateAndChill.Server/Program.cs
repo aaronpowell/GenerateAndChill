@@ -2,7 +2,7 @@ using Azure;
 using Azure.AI.OpenAI;
 using Azure.Core;
 using Azure.Identity;
-using KubernetesDayDemo.Server;
+using GenerateAndChill.Server;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

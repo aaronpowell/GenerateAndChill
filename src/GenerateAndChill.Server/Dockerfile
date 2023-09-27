@@ -9,16 +9,16 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0-preview AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["KubernetsDayDemo.Server/KubernetsDayDemo.Server.csproj", "KubernetsDayDemo.Server/"]
-RUN dotnet restore "KubernetsDayDemo.Server/KubernetsDayDemo.Server.csproj"
+COPY ["GenerateAndChill.Server/GenerateAndChill.Server.csproj", "GenerateAndChill.Server/"]
+RUN dotnet restore "GenerateAndChill.Server/GenerateAndChill.Server.csproj"
 COPY . .
-WORKDIR "/src/KubernetsDayDemo.Server"
-RUN dotnet build "KubernetsDayDemo.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/GenerateAndChill.Server"
+RUN dotnet build "GenerateAndChill.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "KubernetsDayDemo.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "GenerateAndChill.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "KubernetsDayDemo.Server.dll"]
+ENTRYPOINT ["dotnet", "GenerateAndChill.Server.dll"]

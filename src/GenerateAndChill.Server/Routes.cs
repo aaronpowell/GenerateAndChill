@@ -2,7 +2,7 @@
 using Azure.AI.OpenAI;
 using Microsoft.AspNetCore.Mvc;
 
-namespace KubernetesDayDemo.Server;
+namespace GenerateAndChill.Server;
 
 public static class Routes
 {

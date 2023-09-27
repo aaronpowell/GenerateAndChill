@@ -1,11 +1,11 @@
-name: kubernetes-day-demo
+name: generate-and-chill
 services:
   frontend:
-    project: ./src/KubernetesDayDemo.Client
+    project: ./src/GenerateAndChill.Client
     dist: dist
     language: js
     host: staticwebapp
   backend:
-    project: ./src/KubernetesDayDemo.Server
+    project: ./src/GenerateAndChill.Server
     language: csharp
     host: appservice

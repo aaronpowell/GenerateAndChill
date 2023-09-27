@@ -5,10 +5,7 @@ export type PromptProps = {
 export const Prompt = ({ handleSubmit }: PromptProps) => {
   return (
     <section>
-      <p>
-        Thanks to VS Code and the Kubernetes extension, I have all the time in
-        the world to write code.
-      </p>
+      <p>Thanks to DDD Perth, I've learnt a bunch of cool new things.</p>
       <p>
         Enter a prompt below and generate an image of what you'll do with all
         that free time!
