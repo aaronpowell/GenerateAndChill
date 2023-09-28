@@ -17,7 +17,8 @@
         "ms-dotnettools.csdevkit",
         "esbenp.prettier-vscode",
         "GitHub.copilot-chat",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "Azurite.azurite"
       ]
     }
   },

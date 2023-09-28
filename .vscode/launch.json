@@ -12,7 +12,7 @@
     },
     {
       "type": "node-terminal",
-      "name": ".NET: React web app",
+      "name": "React web app",
       "request": "launch",
       "command": "npm run dev",
       "cwd": "${workspaceFolder}/src/GenerateAndChill.Client",
@@ -22,7 +22,7 @@
     },
     {
       "type": "node-terminal",
-      "name": ".NET: SWA CLI",
+      "name": "SWA CLI",
       "request": "launch",
       "command": "swa start",
       "cwd": "${workspaceFolder}/src/GenerateAndChill.Client"
@@ -31,8 +31,8 @@
 
   "compounds": [
     {
-      "name": ".NET web edition",
-      "configurations": [".NET: Server", ".NET: React web app", ".NET: SWA CLI"]
+      "name": "Full Stack",
+      "configurations": [".NET: Server", "React web app", "SWA CLI"]
     }
   ]
 }

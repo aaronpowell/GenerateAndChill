@@ -4,3 +4,5 @@ bin
 appsettings.*.json
 *.user
 .azure
+__azurite*
+__blobstorage*

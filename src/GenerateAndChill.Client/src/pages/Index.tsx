@@ -1,68 +1,60 @@
-import { useState } from "react";
-import { Spinner } from "../components/Spinner";
-import { Prompt } from "../components/Prompt";
-import { Result } from "../components/Result";
+import { useRef } from "react";
+import { ActionFunction, Form, redirect } from "react-router-dom";
+import { generateImage } from "../generate";
 
-enum PageState {
-  Prompt,
-  Loading,
-  Result,
-}
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+  const response = await generateImage(formData.get("prompt") as string);
+
+  return redirect(`/${response.id}`);
+};
 
 export const Index = () => {
-  const [pageState, setPageState] = useState(PageState.Prompt);
-  const [lastPrompt, setLastPrompt] = useState("");
-  const [detailedPrompt, setDetailedPrompt] = useState("");
-  const [imageUri, setImageUri] = useState("");
+  const submitRef = useRef<HTMLButtonElement>(null);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.currentTarget);
-    const prompt = formData.get("prompt");
-
-    if (prompt) {
-      await generateImage(prompt as string);
+  const checkSubmit = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.ctrlKey && event.key === "Enter") {
+      event.preventDefault();
+      if (submitRef.current) {
+        submitRef.current.click();
+      }
     }
-  };
-
-  const generateImage = async (prompt: string) => {
-    setPageState(PageState.Loading);
-    const res = await fetch("/api/generate/image", {
-      method: "POST",
-      body: JSON.stringify({ prompt }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await res.json();
-    setPageState(PageState.Result);
-    setImageUri(data.imageUri);
-    setDetailedPrompt(data.prompt);
-    setLastPrompt(prompt);
   };
 
   return (
     <div className="relative bg-white px-6 pt-10 pb-8 shadow-xl ring-1 ring-gray-900/5 lg:mx-auto lg:max-w-6xl lg:rounded-lg lg:px-10 text-center">
       <div>
         <h1 className="text-8xl">It's time to relax!</h1>
-        {pageState === PageState.Prompt && (
-          <Prompt handleSubmit={handleSubmit} />
-        )}
-        {pageState === PageState.Loading && <Spinner />}
-        {pageState === PageState.Result && (
-          <Result
-            imageUri={imageUri}
-            lastPrompt={detailedPrompt}
-            regenerate={() => generateImage(lastPrompt)}
-            reset={() => {
-              setPageState(PageState.Prompt);
-              setImageUri("");
-              setLastPrompt("");
-              setDetailedPrompt("");
-            }}
-          />
-        )}
+        <section>
+          <p>Thanks to DDD Perth, I've learnt a bunch of cool new things.</p>
+          <p>
+            Enter a prompt below and generate an image of what you'll do with
+            all that free time!
+          </p>
+          <Form action="" method="POST">
+            <textarea
+              id="prompt"
+              name="prompt"
+              className="border-black border-2 rounded-md w-full h-32 p-2 mt-4"
+              onKeyDown={checkSubmit}
+            ></textarea>
+            <br />
+            <button
+              type="submit"
+              className="px-4 py-2 font-semibold text-sm bg-cyan-500 text-white rounded-full shadow-sm"
+              ref={submitRef}
+            >
+              Generate
+            </button>
+            &nbsp;
+            <button
+              type="reset"
+              className="px-4 py-2 font-semibold text-sm bg-gray-200 text-gray-700 rounded-full shadow-sm"
+            >
+              Reset
+            </button>
+          </Form>
+        </section>
       </div>
     </div>
   );
