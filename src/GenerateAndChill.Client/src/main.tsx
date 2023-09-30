@@ -5,6 +5,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { Index, action as generateAction } from "./pages/Index";
 import { LoadingPage } from "./pages/Loading";
 import { ImagePage, loader as imageLoader } from "./pages/Image";
+import { NaughtyPage } from "./pages/Naughty";
 
 const router = createBrowserRouter([
   {
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
   {
     path: "/loading",
     element: <LoadingPage />,
+  },
+  {
+    path: "/naughty",
+    element: <NaughtyPage />,
   },
   {
     path: "/:id",

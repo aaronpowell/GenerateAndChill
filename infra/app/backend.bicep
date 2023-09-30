@@ -10,6 +10,7 @@ param serviceName string = 'backend'
 
 param storageName string
 param openAiName string
+param openAiModelName string
 
 resource imageStorage 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
   name: storageName
@@ -36,6 +37,7 @@ module api '../core/host/appservice.bicep' = {
       Azure__OpenAIKey: openAi.listKeys().key1
       Azure__BlobStorageConnectionString: storageConnectionString
       Azure__TableStorageConnectionString: storageConnectionString
+      Azure__OpenAIModelName: openAiModelName
     }
     runtimeName: 'dotnetcore'
     runtimeVersion: '7.0'

@@ -69,17 +69,6 @@ module swaLink './linkSwaBackends.bicep' = {
   }
 }
 
-module webAppSettings './core/host/staticwebapp-appsettings.bicep' = {
-  name: 'web-appsettings'
-  scope: rg
-  params: {
-    name: frontend.outputs.SERVICE_WEB_NAME
-    appSettings: {
-      // REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING: monitoring.outputs.applicationInsightsConnectionString
-    }
-  }
-}
-
 // The application backend
 module api './app/backend.bicep' = {
   name: 'backend'
@@ -88,10 +77,10 @@ module api './app/backend.bicep' = {
     name: !empty(apiServiceName) ? apiServiceName : '${abbrs.webSitesAppService}api-${resourceToken}'
     location: location
     tags: tags
-    // applicationInsightsName: monitoring.outputs.applicationInsightsName
     appServicePlanId: appServicePlan.outputs.id
     storageName: storage.outputs.name
     openAiName: openAi.outputs.name
+    openAiModelName: chatGptDeploymentName
   }
 }
 

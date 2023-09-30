@@ -10,7 +10,11 @@ import { Spinner } from "../components/Spinner";
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
-  const response = await generateImage(formData.get("prompt") as string);
+  const [error, response] = await generateImage(formData.get("prompt") as string);
+
+  if (error || !response) {
+    return redirect("/naughty");
+  }
 
   return redirect(`/${response.id}`);
 };

@@ -1,9 +1,7 @@
 ﻿using Azure;
 using Azure.AI.OpenAI;
 using Azure.Data.Tables;
-using Azure.Storage;
 using Azure.Storage.Blobs;
-using Azure.Storage.Sas;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GenerateAndChill.Server;
@@ -11,16 +9,20 @@ namespace GenerateAndChill.Server;
 public static class Routes
 {
     private const string ContainerName = "images";
+    private const string ErrorContainer = "errors";
     static readonly string SystemPrompt = """
-        If no style of the image has been provided, use one of the following styles:
+        You an AI tasked with generating prompts to create images for people.
+
+        A starting prompt will be provided.
+        If the prompt isn't in English, translate it first.
+        If there is no style in the prompt, choose a style from the following list:
         - Realistic
         - Sketch
         - Cartoon
         - Watercolour painting
         - Oil painting
 
-        Use the following prompt to generate the image:
-
+        Return a new prompt to give to the image generator.
         """;
 
     public static void MapRoutes(this WebApplication app)
@@ -54,22 +56,25 @@ public static class Routes
             [FromServices] OpenAIClient client,
             [FromServices] BlobServiceClient blobClient,
             [FromServices] TableServiceClient tableClient,
+            IConfiguration config,
             [FromBody] ImageGenerationPayload body)
     {
-        string prompt = SystemPrompt + body.Prompt;
+        string prompt = body.Prompt;
+        Guid id = Guid.NewGuid();
+
         try
         {
-            ImageGenerations generations = await GenerateImage(client, prompt);
+            string generatedPrompt = await GeneratePrompt(client, config, prompt);
+
+            ImageGenerations generations = await GenerateImage(client, generatedPrompt);
 
             if (generations is null || generations.Data.Count != 1)
             {
                 return Results.BadRequest("Something caused it to not generate an image");
             }
 
-            Guid id = Guid.NewGuid();
-
             Uri imageUri = await UploadImage(blobClient, id, generations);
-            await StorePrompt(tableClient, prompt, body.Prompt, id, imageUri);
+            await StorePrompt(tableClient, generatedPrompt, body.Prompt, id, imageUri);
 
             return Results.Ok(new
             {
@@ -81,9 +86,28 @@ public static class Routes
         }
         catch (RequestFailedException ex)
         {
+            TableClient table = tableClient.GetTableClient(ErrorContainer);
+            await table.CreateIfNotExistsAsync();
+            await table.AddEntityAsync(new TableEntity(id.ToString(), id.ToString()) {
+                { "Error", ex },
+                { "Prompt", body.Prompt }
+            });
             return Results.BadRequest(ex.Message);
         }
 
+    }
+
+    private static async Task<string> GeneratePrompt(OpenAIClient client, IConfiguration config, string prompt)
+    {
+        ChatCompletionsOptions chatCompletionsOptions = new([new ChatMessage(ChatRole.System, SystemPrompt),
+            new ChatMessage(ChatRole.User, prompt)])
+        {
+            MaxTokens = 64
+        };
+
+        Response<ChatCompletions> response = await client.GetChatCompletionsAsync(config["Azure:OpenAIModelName"], chatCompletionsOptions);
+
+        return response.Value.Choices[0].Message.Content;
     }
 
     private static async Task StorePrompt(TableServiceClient tableClient, string prompt, string originalPrompt, Guid id, Uri imageUri)
