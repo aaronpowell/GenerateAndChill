@@ -5,36 +5,29 @@ targetScope = 'subscription'
 @description('Name of the the environment which is used to generate a short unique hash used in all resources.')
 param environmentName string
 
-@minLength(1)
-@description('Primary location for all resources')
-param location string
-
-// Optional parameters to override the default azd resource naming conventions. Update the main.parameters.json file to provide values. e.g.,:
-// "resourceGroupName": {
-//      "value": "myGroupName"
-// }
 param apiServiceName string = ''
-param applicationInsightsDashboardName string = ''
-param applicationInsightsName string = ''
 param appServicePlanName string = ''
-param logAnalyticsName string = ''
 param resourceGroupName string = ''
 param webServiceName string = ''
 
+param chatGptDeploymentName string = 'gpt-35-turbo' // Set in main.parameters.json
+param chatGptDeploymentCapacity int = 30
+param chatGptModelName string = 'gpt-35-turbo'
+param chatGptModelVersion string = '0613'
+
 param openAiServiceName string = ''
-@description('Location for the OpenAI resource group')
-@allowed([ 'canadaeast', 'eastus', 'francecentral', 'japaneast', 'northcentralus' ])
+
+@description('Id of the user or app to assign application roles')
+param principalId string = ''
+
+@description('Location for the OpenAI + API resource group')
+@allowed([ 'canadaeast', 'eastus', 'eastus2', 'francecentral', 'japaneast', 'northcentralus' ])
 @metadata({
   azd: {
     type: 'location'
   }
 })
-param openAiResourceGroupLocation string
-
-param openAiSkuName string = 'S0'
-
-@description('Id of the user or app to assign application roles')
-param principalId string = ''
+param location string
 
 @description('Location for the frontend app resource group')
 @allowed([ 'centralus', 'eastus2', 'eastasia', 'westeurope', 'westus2' ])
@@ -43,7 +36,7 @@ param principalId string = ''
     type: 'location'
   }
 })
-param frontendResourceGroupLocation string
+param swaLocation string
 
 var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
@@ -62,7 +55,7 @@ module frontend './app/frontend.bicep' = {
   scope: rg
   params: {
     name: !empty(webServiceName) ? webServiceName : '${abbrs.webSitesAppService}web-${resourceToken}'
-    location: frontendResourceGroupLocation
+    location: swaLocation
     tags: tags
   }
 }
@@ -82,7 +75,7 @@ module webAppSettings './core/host/staticwebapp-appsettings.bicep' = {
   params: {
     name: frontend.outputs.SERVICE_WEB_NAME
     appSettings: {
-      REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING: monitoring.outputs.applicationInsightsConnectionString
+      // REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING: monitoring.outputs.applicationInsightsConnectionString
     }
   }
 }
@@ -95,12 +88,10 @@ module api './app/backend.bicep' = {
     name: !empty(apiServiceName) ? apiServiceName : '${abbrs.webSitesAppService}api-${resourceToken}'
     location: location
     tags: tags
-    applicationInsightsName: monitoring.outputs.applicationInsightsName
+    // applicationInsightsName: monitoring.outputs.applicationInsightsName
     appServicePlanId: appServicePlan.outputs.id
-    appSettings: {
-      Azure__OpenAIEndpoint: openAi.outputs.endpoint
-      Azure__OpenAIKey: openAi.outputs.key
-    }
+    storageName: storage.outputs.name
+    openAiName: openAi.outputs.name
   }
 }
 
@@ -118,36 +109,51 @@ module appServicePlan './core/host/appserviceplan.bicep' = {
   }
 }
 
-// Monitor application with Azure Monitor
-module monitoring './core/monitor/monitoring.bicep' = {
-  name: 'monitoring'
-  scope: rg
-  params: {
-    location: location
-    tags: tags
-    logAnalyticsName: !empty(logAnalyticsName) ? logAnalyticsName : '${abbrs.operationalInsightsWorkspaces}${resourceToken}'
-    applicationInsightsName: !empty(applicationInsightsName) ? applicationInsightsName : '${abbrs.insightsComponents}${resourceToken}'
-    applicationInsightsDashboardName: !empty(applicationInsightsDashboardName) ? applicationInsightsDashboardName : '${abbrs.portalDashboards}${resourceToken}'
-  }
-}
-
 module openAi 'core/ai/cognitiveservices.bicep' = {
   name: 'openai'
   scope: rg
   params: {
-    name: !empty(openAiServiceName) ? openAiServiceName : '${abbrs.cognitiveServicesAccounts}${resourceToken}'
-    location: openAiResourceGroupLocation
+    name: !empty(openAiServiceName) ? openAiServiceName : 'cog-${resourceToken}'
+    location: location
     tags: tags
     sku: {
-      name: openAiSkuName
+      name: 'S0'
     }
-    deployments: []
+    deployments: [
+      {
+        name: chatGptDeploymentName
+        model: {
+          format: 'OpenAI'
+          name: chatGptModelName
+          version: chatGptModelVersion
+        }
+        sku: {
+          name: 'Standard'
+          capacity: chatGptDeploymentCapacity
+        }
+      }
+    ]
+  }
+}
+
+module storage 'core/storage/storage-account.bicep' = {
+  name: 'storage'
+  scope: rg
+  params: {
+    name: '${abbrs.storageStorageAccounts}${resourceToken}'
+    location: location
+    tags: tags
+
+    containers: [
+      {
+        name: 'image'
+        publicAccess: 'Blob'
+      }
+    ]
   }
 }
 
 // App outputs
-output APPLICATIONINSIGHTS_CONNECTION_STRING string = monitoring.outputs.applicationInsightsConnectionString
 output AZURE_LOCATION string = location
 output AZURE_TENANT_ID string = tenant().tenantId
-output REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING string = monitoring.outputs.applicationInsightsConnectionString
 output REACT_APP_WEB_BASE_URL string = frontend.outputs.SERVICE_WEB_URI

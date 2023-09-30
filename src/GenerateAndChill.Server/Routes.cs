@@ -41,12 +41,10 @@ public static class Routes
             return Results.NotFound();
         }
 
-        string sas = GenerateSasToken(blobClient, id);
-
         return Results.Ok(new
         {
             Id = id,
-            ImageUri = $"{entity["ImageUri"]}?{sas}",
+            ImageUri = $"{entity["ImageUri"]}",
             DetailedPrompt = entity["DetailedPrompt"].ToString(),
             OriginalPrompt = entity["OriginalPrompt"].ToString(),
         });
@@ -73,12 +71,10 @@ public static class Routes
             Uri imageUri = await UploadImage(blobClient, id, generations);
             await StorePrompt(tableClient, prompt, body.Prompt, id, imageUri);
 
-            string sas = GenerateSasToken(blobClient, id.ToString());
-
             return Results.Ok(new
             {
                 Id = id,
-                ImageUri = $"{imageUri.AbsoluteUri}?{sas}",
+                ImageUri = $"{imageUri.AbsoluteUri}",
                 DetailedPrompt = prompt,
                 OriginalPrompt = body.Prompt,
             });
@@ -127,25 +123,5 @@ public static class Routes
         await blob.UploadAsync(imageStream, overwrite: true);
 
         return blob.Uri;
-    }
-
-    private static string GenerateSasToken(BlobServiceClient blobClient, string id)
-    {
-        // BlobContainerClient container = blobClient.GetBlobContainerClient(ContainerName);
-        // BlobClient blob = container.GetBlobClient($"{id}.png");
-
-        // BlobSasBuilder sasBuilder = new()
-        // {
-        //     BlobContainerName = ContainerName,
-        //     BlobName = $"{id}.png",
-        //     ExpiresOn = DateTimeOffset.UtcNow.AddHours(1),
-        //     StartsOn = DateTimeOffset.UtcNow
-        // };
-
-        // sasBuilder.SetPermissions(BlobSasPermissions.Read);
-
-        // return blob.GenerateSasUri(sasBuilder).Query;
-
-        return "";
     }
 }
