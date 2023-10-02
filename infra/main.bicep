@@ -120,6 +120,7 @@ module openAi 'core/ai/cognitiveservices.bicep' = {
           name: 'Standard'
           capacity: chatGptDeploymentCapacity
         }
+        raiPolicyName: 'BeKindPeople'
       }
     ]
   }
