@@ -54,13 +54,9 @@ export const Index = () => {
   return (
     <div className="relative bg-white px-6 pt-10 pb-8 shadow-xl ring-1 ring-gray-900/5 lg:mx-auto lg:max-w-6xl lg:rounded-lg lg:px-10 text-center">
       <div>
-        <h1 className="text-8xl">It's time to relax!</h1>
+        <h1 className="text-8xl">The machines are taking over!</h1>
         <section>
-          <p>Thanks to DDD Perth, I've learnt a bunch of cool new things.</p>
-          <p>
-            Enter a prompt below and generate an image of what you'll do with
-            all that free time!
-          </p>
+          <p>Given we now have a whole lot more time thanks to AI, what will you do with your new found free time?</p>
           {navigation.state === "submitting" && <Spinner />}
           {navigation.state !== "submitting" && (
             <Form action="" method="POST">
@@ -72,6 +68,7 @@ export const Index = () => {
                   onKeyDown={checkSubmit}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
+                  placeholder="I'll be sitting by the beach drinking a beer"
                 ></textarea>
                 <button
                   className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
