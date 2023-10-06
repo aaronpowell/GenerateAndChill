@@ -88,13 +88,24 @@ public static class Routes
         {
             TableClient table = tableClient.GetTableClient(ErrorContainer);
             await table.CreateIfNotExistsAsync();
-            await table.AddEntityAsync(new TableEntity(id.ToString(), id.ToString()) {
+            await table.UpsertEntityAsync(new TableEntity(id.ToString(), id.ToString()) {
                 { "Error", ex },
-                { "Prompt", body.Prompt }
+                { "Prompt", body.Prompt },
+                { "Type", "RequestFailedException" }
             });
             return Results.BadRequest(ex.Message);
         }
-
+        catch (Exception ex)
+        {
+            TableClient table = tableClient.GetTableClient(ErrorContainer);
+            await table.CreateIfNotExistsAsync();
+            await table.UpsertEntityAsync(new TableEntity(id.ToString(), id.ToString()) {
+                { "Error", ex },
+                { "Prompt", body.Prompt },
+                { "Type", "Exception" }
+            });
+            return Results.Problem(ex.Message, statusCode: 500);
+        }
     }
 
     private static async Task<string> GeneratePrompt(OpenAIClient client, IConfiguration config, string prompt)
