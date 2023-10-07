@@ -14,8 +14,8 @@ public static class Routes
         You an AI tasked with generating prompts to create images for people.
 
         A starting prompt will be provided.
-        If the prompt isn't in English, translate it first.
-        If there is no style in the prompt, choose a style from the following list:
+        If the prompt isn't in English, translate it to English first.
+        If there is no style in the prompt, choose a random style from the following list:
         - Realistic
         - Sketch
         - Cartoon
@@ -113,7 +113,8 @@ public static class Routes
         ChatCompletionsOptions chatCompletionsOptions = new([new ChatMessage(ChatRole.System, SystemPrompt),
             new ChatMessage(ChatRole.User, prompt)])
         {
-            MaxTokens = 64
+            MaxTokens = 64,
+            Temperature = 0.1f
         };
 
         Response<ChatCompletions> response = await client.GetChatCompletionsAsync(config["Azure:OpenAIModelName"], chatCompletionsOptions);
