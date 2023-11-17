@@ -89,7 +89,7 @@ public static class Routes
             TableClient table = tableClient.GetTableClient(ErrorContainer);
             await table.CreateIfNotExistsAsync();
             await table.UpsertEntityAsync(new TableEntity(id.ToString(), id.ToString()) {
-                { "Error", ex },
+                { "Error", ex.ToString() },
                 { "Prompt", body.Prompt },
                 { "Type", "RequestFailedException" }
             });
@@ -100,7 +100,7 @@ public static class Routes
             TableClient table = tableClient.GetTableClient(ErrorContainer);
             await table.CreateIfNotExistsAsync();
             await table.UpsertEntityAsync(new TableEntity(id.ToString(), id.ToString()) {
-                { "Error", ex },
+                { "Error", ex.ToString() },
                 { "Prompt", body.Prompt },
                 { "Type", "Exception" }
             });
