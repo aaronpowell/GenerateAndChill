@@ -40,7 +40,7 @@ module api '../core/host/appservice.bicep' = {
       Azure__OpenAIModelName: openAiModelName
     }
     runtimeName: 'dotnetcore'
-    runtimeVersion: '7.0'
+    runtimeVersion: '8.0'
     scmDoBuildDuringDeployment: false
   }
 }

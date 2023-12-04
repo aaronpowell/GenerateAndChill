@@ -28,6 +28,13 @@
       "cwd": "${workspaceFolder}/src/GenerateAndChill.Client"
     }
   ],
+  "inputs": [
+    {
+      "id": "dotEnvFilePath",
+      "type": "command",
+      "command": "azure-dev.commands.getDotEnvFilePath"
+    }
+  ],
 
   "compounds": [
     {

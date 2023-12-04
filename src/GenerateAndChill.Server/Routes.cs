@@ -110,14 +110,15 @@ public static class Routes
 
     private static async Task<string> GeneratePrompt(OpenAIClient client, IConfiguration config, string prompt)
     {
-        ChatCompletionsOptions chatCompletionsOptions = new([new ChatMessage(ChatRole.System, SystemPrompt),
-            new ChatMessage(ChatRole.User, prompt)])
+        ChatCompletionsOptions chatCompletionsOptions = new(
+            config["Azure:OpenAIModelName"],
+            [new ChatMessage(ChatRole.System, SystemPrompt), new ChatMessage(ChatRole.User, prompt)])
         {
             MaxTokens = 64,
             Temperature = 0.1f
         };
 
-        Response<ChatCompletions> response = await client.GetChatCompletionsAsync(config["Azure:OpenAIModelName"], chatCompletionsOptions);
+        Response<ChatCompletions> response = await client.GetChatCompletionsAsync(chatCompletionsOptions);
 
         return response.Value.Choices[0].Message.Content;
     }
