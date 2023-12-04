@@ -55,7 +55,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       </a>
     </div>
     <div className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gray-50 py-6 sm:py-12">
-      <div className="absolute inset-0 bg-[url(/merged.png)] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
+      <div className="absolute inset-0 bg-[url(/images/yow-demos.png)] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
       <RouterProvider router={router} />
     </div>
   </React.StrictMode>
